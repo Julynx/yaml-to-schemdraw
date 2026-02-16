@@ -1,0 +1,91 @@
+T:
+  - elements
+  - Ic:
+      [
+        {
+          pins:
+            [
+              { elements.IcPin: { name: "TRG", side: "left", pin: "2" } },
+              { elements.IcPin: { name: "THR", side: "left", pin: "6" } },
+              { elements.IcPin: { name: "DIS", side: "left", pin: "7" } },
+              { elements.IcPin: { name: "CTL", side: "right", pin: "5" } },
+              { elements.IcPin: { name: "OUT", side: "right", pin: "3" } },
+              { elements.IcPin: { name: "RST", side: "top", pin: "4" } },
+              { elements.IcPin: { name: "Vcc", side: "top", pin: "8" } },
+              { elements.IcPin: { name: "GND", side: "bot", pin: "1" } },
+            ],
+          edgepadW: 0.5,
+          edgepadH: 1,
+          pinspacing: 2,
+          leadlen: 1,
+          label: "555",
+        },
+      ]
+
+BOT:
+  - elements
+  - Ground: [{ xy: "T.GND" }]
+
+dot1:
+  - elements
+  - Dot
+
+Rb:
+  - elements
+  - Resistor: [{ endpts: ["T.DIS", "T.THR"], label: "Rb" }]
+
+Ra:
+  - elements
+  - Resistor: [{ d: u, xy: "T.DIS", label: "Ra", rgtlabel: "+Vcc" }]
+
+line1:
+  - elements
+  - Line: [{ endpts: ["T.THR", "T.TRG"] }]
+
+C:
+  - elements
+  - Capacitor: [{ d: d, xy: "T.TRG", toy: "BOT.start", label: "C", l: 1.5 }] # unit/2. unit defaults to 3? No, default 3. l=1.5
+
+line2:
+  - elements
+  - Line: [{ d: r, tox: "BOT.start" }]
+
+C2:
+  - elements
+  - Capacitor: [{ d: d, xy: "T.CTL", toy: "BOT.start", botlabel: ".01$\\mu$F" }]
+
+dot2:
+  - elements
+  - Dot: [{ xy: "T.DIS" }]
+
+dot3:
+  - elements
+  - Dot: [{ xy: "T.THR" }]
+
+dot4:
+  - elements
+  - Dot: [{ xy: "T.TRG" }]
+
+line3:
+  - elements
+  - Line: [{ endpts: ["T.RST", "T.Vcc"] }]
+
+dot5:
+  - elements
+  - Dot
+
+line4:
+  - elements
+  - Line: [{ d: u, l: 0.75, rgtlabel: "+Vcc" }] # unit/4
+
+R_out:
+  - elements
+  - Resistor: [{ d: r, xy: "T.OUT", label: "330" }]
+
+LED:
+  - elements
+  - LED: [{ flip: true, d: down, toy: "BOT.start" }]
+
+line5:
+  - elements
+  - Line: [{ d: l, tox: "BOT.start" }]

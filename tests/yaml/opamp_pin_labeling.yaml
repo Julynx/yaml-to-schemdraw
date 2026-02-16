@@ -1,0 +1,159 @@
+config:
+  fontsize: 12
+
+op:
+  - elements
+  - Opamp: [{ label: "741", lblloc: center, lblofst: 0 }]
+  - label:
+      [
+        "1",
+        {
+          loc: n1,
+          fontsize: 9,
+          ofst: [-0.1, -0.25],
+          halign: right,
+          valign: top,
+        },
+      ]
+  - label:
+      [
+        "5",
+        {
+          loc: n1a,
+          fontsize: 9,
+          ofst: [-0.1, -0.25],
+          halign: right,
+          valign: top,
+        },
+      ]
+  - label:
+      [
+        "4",
+        {
+          loc: vs,
+          fontsize: 9,
+          ofst: [-0.1, -0.2],
+          halign: right,
+          valign: top,
+        },
+      ]
+  - label:
+      [
+        "7",
+        {
+          loc: vd,
+          fontsize: 9,
+          ofst: [-0.1, 0.2],
+          halign: right,
+          valign: bottom,
+        },
+      ]
+  - label:
+      [
+        "2",
+        {
+          loc: in1,
+          fontsize: 9,
+          ofst: [-0.1, 0.1],
+          halign: right,
+          valign: bottom,
+        },
+      ]
+  - label:
+      [
+        "3",
+        {
+          loc: in2,
+          fontsize: 9,
+          ofst: [-0.1, 0.1],
+          halign: right,
+          valign: bottom,
+        },
+      ]
+  - label:
+      [
+        "6",
+        {
+          loc: out,
+          fontsize: 9,
+          ofst: [-0.1, 0.1],
+          halign: left,
+          valign: bottom,
+        },
+      ]
+  # Note: I am assuming repeat label calls are allowed.
+  # If dict keys must be unique, subsequent 'label' keys will overwrite previous ones in Python dicts!
+  # YAML parsers usually respect order or overwrite. ruamel.yaml might preserve duplicate keys if loading to list but here we load to dict.
+  # Ah, dict keys must be unique.
+  # So "label" can only appear once?
+  # The YAML structure is a dictionary where keys are component IDs.
+  # Inside the component definition (list), items are dicts or strings.
+  # The list `[{...}, label: [...], label: [...]]`?
+  # YAML list items don't need unique keys if they are separate dictionary items.
+  # `- label: ...`
+  # `- label: ...`
+  # This is a list of single-key dictionaries. Totally fine.
+
+line1:
+  - elements
+  - Line: [{ d: l, xy: "op.in1", l: 0.5 }]
+
+line2:
+  - elements
+  - Line: [{ d: d, l: 1.5 }] # unit/2
+
+gnd1:
+  - elements
+  - Ground
+
+line3:
+  - elements
+  - Line: [{ d: l, xy: "op.in2", l: 0.5 }]
+
+line4:
+  - elements
+  - Line: [{ d: r, xy: "op.out", l: 0.5, rgtlabel: "$V_o$" }]
+
+line5:
+  - elements
+  - Line: [{ d: u, xy: "op.vd", l: 1, rgtlabel: "$+V_s$" }]
+
+trim:
+  - elements
+  - Potentiometer: [{ d: d, xy: "op.n1", flip: true, zoom: 0.7 }]
+
+line6:
+  - elements
+  - Line: [{ d: r, tox: "op.n1a" }]
+
+line7:
+  - elements
+  - Line: [{ d: u, to: "op.n1a" }]
+
+line8:
+  - elements
+  - Line: [{ d: l, xy: "trim.tap", tox: "op.vs" }]
+
+dot1:
+  - elements
+  - Dot
+
+push1:
+  - drawing_state
+  - push
+
+line9:
+  - elements
+  - Line: [{ d: d, l: 1 }] # unit/3
+
+gnd2:
+  - elements
+  - Ground
+
+pop1:
+  - drawing_state
+  - pop
+
+line10:
+  - elements
+  - Line: [{ d: u, toy: "op.vs" }]

@@ -1,0 +1,102 @@
+config:
+  unit: 2
+
+push_1:
+  - drawing_state
+  - push
+
+R1:
+  - elements
+  - Resistor: [{ d: down, label: "20$\\Omega$" }]
+
+V1:
+  - elements
+  - SourceV: [{ d: down, reverse: true, label: "120V" }]
+
+line1:
+  - elements
+  - Line: [{ d: right, l: 3 }]
+
+dot1:
+  - elements
+  - Dot
+
+pop_1:
+  - drawing_state
+  - pop
+
+line2:
+  - elements
+  - Line: [{ d: right, l: 3 }]
+
+dot2:
+  - elements
+  - Dot
+
+V2:
+  - elements
+  - SourceV: [{ d: down, label: "60V", reverse: true }]
+
+R2:
+  - elements
+  - Resistor: [{ label: "5$\\Omega$" }]
+
+dot3:
+  - elements
+  - Dot
+
+line3:
+  - elements
+  - Line: [{ d: right, l: 3 }]
+
+I1:
+  - elements
+  - SourceI: [{ d: up, label: "36A" }]
+
+R3:
+  - elements
+  - Resistor: [{ label: "10$\\Omega$" }]
+
+dot4:
+  - elements
+  - Dot
+
+line4:
+  - elements
+  - Line: [{ d: left, l: 3, move_cur: false }]
+
+line5:
+  - elements
+  - Line: [{ d: right, l: 3 }]
+
+dot5:
+  - elements
+  - Dot
+
+R6:
+  - elements
+  - Resistor: [{ d: down, toy: "V1.end", label: "6$\\Omega$" }]
+
+dot6:
+  - elements
+  - Dot
+
+line6:
+  - elements
+  - Line: [{ d: left, l: 3, move_cur: false }]
+
+R_small:
+  - elements
+  - Resistor: [{ d: right, xy: "R6.start", label: "1.6$\\Omega$" }]
+
+dot_a:
+  - elements
+  - Dot: [{ label: a }]
+
+line_end:
+  - elements
+  - Line: [{ d: right, xy: "R6.end" }]
+
+dot_b:
+  - elements
+  - Dot: [{ label: b }]

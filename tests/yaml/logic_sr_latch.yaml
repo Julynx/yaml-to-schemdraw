@@ -1,0 +1,50 @@
+line1:
+  - logic.Line: [{ l: 0.75, lftlabel: "$R$" }]
+
+G1:
+  - logic.Nor: [{ anchor: in1 }]
+
+line2:
+  - logic.Line: [{ l: 0.75 }]
+
+Q:
+  - logic.Dot
+
+line3:
+  - logic.Line: [{ l: 0.75, rgtlabel: "$Q$" }]
+
+gapG2:
+  - elements.Gap: [{ xy: "G1.in1", d: down, l: 2.5 }]
+
+G2:
+  - logic.Nor: [{ anchor: in1 }]
+
+line4:
+  - logic.Line: [{ l: 0.75 }]
+
+Qb:
+  - logic.Dot
+
+line5:
+  - logic.Line: [{ l: 0.75, rgtlabel: "$\\overline{Q}$" }]
+
+S1:
+  - logic.Line: [{ d: up, xy: "G2.in1", l: 0.5 }]
+
+line6:
+  - logic.Line: [{ d: down, xy: "Q.start", l: 0.5 }]
+
+line7:
+  - logic.Line: [{ to: "S1.end" }]
+
+R1:
+  - logic.Line: [{ d: down, xy: "G1.in2", l: 0.5 }]
+
+line8:
+  - logic.Line: [{ d: up, xy: "Qb.start", l: 0.5 }]
+
+line9:
+  - logic.Line: [{ to: "R1.end" }]
+
+line10:
+  - logic.Line: [{ d: left, xy: "G2.in2", l: 0.75, lftlabel: "$S$" }]

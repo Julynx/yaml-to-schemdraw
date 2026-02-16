@@ -1,0 +1,663 @@
+config:
+  fontsize: 12
+  unit: 2.5
+
+Q1:
+  - elements
+  - BjtNpn: [{ label: "Q1", lftlabel: "+IN" }]
+
+Q3:
+  - elements
+  - BjtPnp:
+      [{ d: l, xy: "Q1.emitter", anchor: emitter, lftlabel: "Q3", flip: true }]
+
+line1:
+  - elements
+  - Line: [{ d: d, xy: "Q3.collector" }]
+
+dot1:
+  - elements
+  - Dot
+
+push1:
+  - drawing_state
+  - push
+
+line2:
+  - elements
+  - Line: [{ d: r, l: 0.625 }] # unit/4
+
+Q7:
+  - elements
+  - BjtNpn: [{ anchor: base, label: "Q7" }]
+
+pop1:
+  - drawing_state
+  - pop
+
+line3:
+  - elements
+  - Line: [{ d: d, l: 3.125 }] # unit*1.25
+
+Q5:
+  - elements
+  - BjtNpn: [{ d: l, anchor: collector, flip: true, lftlabel: "Q5" }]
+
+line4:
+  - elements
+  - Line: [
+        {
+          d: l,
+          xy: "Q5.emitter",
+          l: 1.25,
+          lftlabel: "OFST\nNULL",
+          move_cur: false,
+        },
+      ] # unit/2
+
+R1:
+  - elements
+  - Resistor: [{ d: d, xy: "Q5.emitter", label: "R1\n1K" }]
+
+line5:
+  - elements
+  - Line: [{ d: r, l: 1.875 }] # unit*0.75
+
+dot2:
+  - elements
+  - Dot
+
+R3:
+  - elements
+  - Resistor: [{ d: u, label: "R3\n50K" }]
+
+line6:
+  - elements
+  - Line: [{ toy: "Q5.base" }]
+
+dot3:
+  - elements
+  - Dot
+
+push2:
+  - drawing_state
+  - push
+
+line7:
+  - elements
+  - Line: [{ d: l, to: "Q5.base" }]
+
+line8:
+  - elements
+  - Line: [{ d: d, xy: "Q7.emitter", toy: "Q5.base" }]
+
+dot4:
+  - elements
+  - Dot # DOT in original, mapped to Dot
+
+pop2:
+  - drawing_state
+  - pop
+
+line9:
+  - elements
+  - Line: [{ d: right, l: 0.625 }] # unit/4
+
+Q6:
+  - elements
+  - BjtNpn: [{ anchor: base, label: "Q6" }]
+
+line10:
+  - elements
+  - Line: [
+        {
+          xy: "Q6.emitter",
+          l: 0.833,
+          rgtlabel: "\nOFST\nNULL",
+          move_cur: false,
+        },
+      ] # unit/3
+
+R2:
+  - elements
+  - Resistor: [{ d: d, xy: "Q6.emitter", label: "R2\n1K" }]
+
+dot5:
+  - elements
+  - Dot
+
+line11:
+  - elements
+  - Line: [{ d: u, xy: "Q6.collector", toy: "Q3.collector" }]
+
+Q4:
+  - elements
+  - BjtPnp: [{ d: r, anchor: collector, label: "Q4" }]
+
+line12:
+  - elements
+  - Line: [{ d: l, xy: "Q4.base", tox: "Q3.base" }]
+
+line13:
+  - elements
+  - Line: [{ d: u, xy: "Q4.emitter", toy: "Q1.emitter" }]
+
+Q2:
+  - elements
+  - BjtNpn:
+      [{ d: l, anchor: emitter, flip: true, lftlabel: "Q2", rgtlabel: "$-$IN" }]
+
+line14:
+  - elements
+  - Line: [{ d: u, xy: "Q2.collector", l: 0.833 }] # unit/3
+
+dot6:
+  - elements
+  - Dot
+
+Q8:
+  - elements
+  - BjtPnp: [{ d: l, lftlabel: "Q8", anchor: base, flip: true }]
+
+line15:
+  - elements
+  - Line: [{ d: d, xy: "Q8.collector", toy: "Q2.collector" }]
+
+dot7:
+  - elements
+  - Dot
+
+line16:
+  - elements
+  - Line: [{ d: l, xy: "Q2.collector", tox: "Q1.collector" }]
+
+line17:
+  - elements
+  - Line: [{ d: u, xy: "Q8.emitter", l: 0.625 }] # unit/4
+
+top:
+  - elements
+  - Line: [{ d: l, tox: "Q7.collector" }]
+
+line18:
+  - elements
+  - Line: [{ d: d, toy: "Q7.collector" }]
+
+line19:
+  - elements
+  - Line: [{ d: r, xy: "top.start", l: 5 }] # unit*2
+
+line20:
+  - elements
+  - Line: [{ d: d, l: 0.625 }] # unit/4
+
+Q9:
+  - elements
+  - BjtPnp: [{ d: r, anchor: emitter, label: "Q9", lblofst: -0.1 }]
+
+line21:
+  - elements
+  - Line: [{ d: l, xy: "Q9.base", tox: "Q8.base" }]
+
+dot8:
+  - elements
+  - Dot: [{ xy: "Q4.base" }]
+
+line22:
+  - elements
+  - Line: [{ d: d, xy: "Q4.base", l: 1.25 }] # unit/2
+
+line23:
+  - elements
+  - Line: [{ d: r, tox: "Q9.collector" }]
+
+dot9:
+  - elements
+  - Dot
+
+line24:
+  - elements
+  - Line: [{ d: d, xy: "Q9.collector", toy: "Q6.collector" }]
+
+Q10:
+  - elements
+  - BjtNpn: [{ d: l, anchor: collector, flip: true, lftlabel: "Q10" }]
+
+R4:
+  - elements
+  - Resistor: [{ d: d, xy: "Q10.emitter", toy: "R3.start", label: "R4\n5K" }]
+
+dot10:
+  - elements
+  - Dot
+
+Q11:
+  - elements
+  - BjtNpn: [{ d: r, xy: "Q10.base", anchor: base, label: "Q11" }]
+
+dot11:
+  - elements
+  - Dot: [{ xy: "Q11.base" }]
+
+line25:
+  - elements
+  - Line: [{ d: u, l: 1.25 }] # unit/2
+
+line26:
+  - elements
+  - Line: [{ d: r, tox: "Q11.collector" }]
+
+dot12:
+  - elements
+  - Dot
+
+line27:
+  - elements
+  - Line: [{ d: d, xy: "Q11.emitter", toy: "R3.start" }]
+
+dot13:
+  - elements
+  - Dot
+
+line28:
+  - elements
+  - Line: [{ d: u, xy: "Q11.collector", l: 5 }] # unit*2
+
+R5:
+  - elements
+  - Resistor: [{ toy: "Q9.collector", botlabel: "R5\n39K" }]
+
+Q12:
+  - elements
+  - BjtPnp:
+      [{ d: l, anchor: collector, flip: true, lftlabel: "Q12", lblofst: -0.1 }]
+
+line29:
+  - elements
+  - Line: [{ d: u, xy: "Q12.emitter", l: 0.625 }] # unit/4
+
+dot14:
+  - elements
+  - Dot
+
+line30:
+  - elements
+  - Line: [{ d: l, tox: "Q9.emitter" }]
+
+dot15:
+  - elements
+  - Dot
+
+line31:
+  - elements
+  - Line: [{ d: r, xy: "Q12.base", l: 0.625 }] # unit/4
+
+dot16:
+  - elements
+  - Dot
+
+push3:
+  - drawing_state
+  - push
+
+line32:
+  - elements
+  - Line: [{ d: d, toy: "Q12.collector" }]
+
+line33:
+  - elements
+  - Line: [{ d: l, tox: "Q12.collector" }]
+
+dot17:
+  - elements
+  - Dot
+
+pop3:
+  - drawing_state
+  - pop
+
+line34:
+  - elements
+  - Line: [{ d: r, l: 3.75 }] # unit*1.5
+
+Q13:
+  - elements
+  - BjtPnp: [{ anchor: base, label: "Q13" }]
+
+line35:
+  - elements
+  - Line: [{ d: u, l: 0.625 }] # unit/4
+
+dot18:
+  - elements
+  - Dot
+
+line36:
+  - elements
+  - Line: [{ d: l, tox: "Q12.emitter" }]
+
+K:
+  - elements
+  - Line: [{ d: d, xy: "Q13.collector", l: 0.5 }] # unit/5
+
+dot19:
+  - elements
+  - Dot
+
+line37:
+  - elements
+  - Line: [{ d: d }]
+
+Q16:
+  - elements
+  - BjtNpn: [{ d: r, anchor: collector, label: "Q16", lblofst: -0.1 }]
+
+line38:
+  - elements
+  - Line: [{ d: l, xy: "Q16.base", l: 0.833 }] # unit/3
+
+dot20:
+  - elements
+  - Dot
+
+R7:
+  - elements
+  - Resistor: [{ d: u, toy: "K.end", label: "R7\n4.5K" }]
+
+dot21:
+  - elements
+  - Dot
+
+line39:
+  - elements
+  - Line: [{ d: r, tox: "Q13.collector", move_cur: false }]
+
+R8:
+  - elements
+  - Resistor: [{ d: d, xy: "R7.start", label: "R8\n7.5K" }]
+
+dot22:
+  - elements
+  - Dot
+
+line40:
+  - elements
+  - Line: [{ d: r, tox: "Q16.emitter" }]
+
+J:
+  - elements
+  - Dot
+
+line41:
+  - elements
+  - Line: [{ d: u, toy: "Q16.emitter" }]
+
+Q15:
+  - elements
+  - BjtNpn: [{ d: r, anchor: collector, xy: "R8.end", label: "Q15" }]
+
+line42:
+  - elements
+  - Line: [{ d: l, xy: "Q15.base", l: 1.25 }] # unit/2
+
+dot23:
+  - elements
+  - Dot
+
+C1:
+  - elements
+  - Capacitor: [{ d: u, toy: "R7.end", label: "C1\n30pF" }]
+
+line43:
+  - elements
+  - Line: [{ d: r, tox: "Q13.collector" }]
+
+line44:
+  - elements
+  - Line: [{ d: l, xy: "C1.start", tox: "Q6.collector" }]
+
+dot24:
+  - elements
+  - Dot
+
+line45:
+  - elements
+  - Line: [{ d: d, xy: "J.center", l: 1.25 }] # unit/2
+
+Q19:
+  - elements
+  - BjtNpn: [{ d: r, anchor: collector, label: "Q19" }]
+
+line46:
+  - elements
+  - Line: [{ d: l, xy: "Q19.base", tox: "Q15.emitter" }]
+
+dot25:
+  - elements
+  - Dot
+
+line47:
+  - elements
+  - Line: [{ d: u, toy: "Q15.emitter", move_cur: false }]
+
+line48:
+  - elements
+  - Line: [{ d: d, xy: "Q19.emitter", l: 0.625 }] # unit/4
+
+dot26:
+  - elements
+  - Dot
+
+line49:
+  - elements
+  - Line: [{ d: left }]
+
+Q22:
+  - elements
+  - BjtNpn: [{ d: l, anchor: base, flip: true, lftlabel: "Q22" }]
+
+line50:
+  - elements
+  - Line: [{ d: u, xy: "Q22.collector", toy: "Q15.base" }]
+
+dot27:
+  - elements
+  - Dot
+
+line51:
+  - elements
+  - Line: [{ d: d, xy: "Q22.emitter", toy: "R3.start" }]
+
+dot28:
+  - elements
+  - Dot
+
+line52:
+  - elements
+  - Line: [{ d: l, tox: "R3.start", move_cur: false }]
+
+line53:
+  - elements
+  - Line: [{ d: r, tox: "Q15.emitter" }]
+
+dot29:
+  - elements
+  - Dot
+
+push4:
+  - drawing_state
+  - push
+
+R12:
+  - elements
+  - Resistor: [{ d: u, label: "R12\n50K" }]
+
+line54:
+  - elements
+  - Line: [{ toy: "Q19.base" }]
+
+pop4:
+  - drawing_state
+  - pop
+
+line55:
+  - elements
+  - Line: [{ tox: "Q19.emitter" }]
+
+dot30:
+  - elements
+  - Dot
+
+R11:
+  - elements
+  - Resistor: [{ d: u, label: "R11\n50" }]
+
+line56:
+  - elements
+  - Line: [{ toy: "Q19.emitter" }]
+
+# Final stage
+line57:
+  - elements
+  - Line: [{ d: u, xy: "Q13.emitter", l: 0.625 }] # unit/4
+
+line58:
+  - elements
+  - Line: [{ d: r, l: 3.75 }] # unit*1.5
+
+dot31:
+  - elements
+  - Dot
+
+line59:
+  - elements
+  - Line: [{ l: 0.625, rgtlabel: "V+", move_cur: false }] # unit/4
+
+line60:
+  - elements
+  - Line: [{ d: d, l: 1.875 }] # unit*0.75
+
+Q14:
+  - elements
+  - BjtNpn: [{ d: r, anchor: collector, label: "Q14" }]
+
+line61:
+  - elements
+  - Line: [{ d: l, xy: "Q14.base", l: 1.25 }] # unit/2
+
+push5:
+  - drawing_state
+  - push
+
+dot32:
+  - elements
+  - Dot
+
+line62:
+  - elements
+  - Line: [{ d: d, l: 1.25 }] # unit/2
+
+Q17:
+  - elements
+  - BjtNpn:
+      [{ d: l, anchor: collector, flip: true, lftlabel: "Q17", lblofst: -0.1 }]
+
+line63:
+  - elements
+  - Line: [{ d: r, xy: "Q17.base", tox: "Q14.emitter" }]
+
+dot33:
+  - elements
+  - Dot
+
+J2:
+  - elements
+  - Line: [{ d: u, toy: "Q14.emitter" }]
+
+pop5:
+  - drawing_state
+  - pop
+
+line64:
+  - elements
+  - Line: [{ tox: "Q13.collector" }]
+
+dot34:
+  - elements
+  - Dot
+
+R9:
+  - elements
+  - Resistor: [{ d: d, xy: "J2.start", label: "R9\n25" }]
+
+dot35:
+  - elements
+  - Dot
+
+push6:
+  - drawing_state
+  - push
+
+line65:
+  - elements
+  - Line: [{ d: l, tox: "Q17.emitter" }]
+
+line66:
+  - elements
+  - Line: [{ d: u, toy: "Q17.emitter" }]
+
+pop6:
+  - drawing_state
+  - pop
+
+line67:
+  - elements
+  - Line: [{ d: d, l: 0.625 }] # unit/4
+
+dot36:
+  - elements
+  - Dot
+
+line68:
+  - elements
+  - Line: [{ d: r, l: 0.625, rgtlabel: "OUT", move_cur: false }] # unit/4
+
+R10:
+  - elements
+  - Resistor: [{ d: d, label: "R10\n50" }]
+
+Q20:
+  - elements
+  - BjtPnp: [{ d: r, anchor: emitter, label: "Q20" }]
+
+line69:
+  - elements
+  - Line: [{ d: l, xy: "Q20.base", l: 1.25 }] # unit/2
+
+line70:
+  - elements
+  - Line: [{ d: u, toy: "Q15.collector" }]
+
+line71:
+  - elements
+  - Line: [{ d: l, tox: "Q15.collector" }]
+
+dot37:
+  - elements
+  - Dot
+
+line72:
+  - elements
+  - Line: [{ d: d, xy: "Q20.collector", toy: "R3.start" }]
+
+dot38:
+  - elements
+  - Dot
+
+line73:
+  - elements
+  - Line: [{ d: r, l: 0.625, rgtlabel: "V-", move_cur: false }] # unit/4
+
+line74:
+  - elements
+  - Line: [{ d: l, tox: "R11.start" }]

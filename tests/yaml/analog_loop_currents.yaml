@@ -1,0 +1,50 @@
+config:
+  unit: 5
+
+V1:
+  - elements
+  - SourceV: [{ label: "$20V$" }]
+
+R1:
+  - elements
+  - Resistor: [{ d: right, label: "400$\\Omega$" }]
+
+dot1:
+  - elements
+  - Dot
+
+push_1:
+  - drawing_state
+  - push
+
+R2:
+  - elements
+  - Resistor: [{ d: down, botlabel: "100$\\Omega$", lblrotate: true }]
+
+dot2:
+  - elements
+  - Dot
+
+pop_1:
+  - drawing_state
+  - pop
+
+L1:
+  - elements
+  - Line
+
+I1:
+  - elements
+  - SourceI: [{ d: down, botlabel: "1A" }]
+
+L2:
+  - elements
+  - Line: [{ d: left, tox: "V1.start" }]
+
+loop1:
+  - elements
+  - LoopCurrent: [["R1", "R2", "L2", "V1"], { label: "$I_1$", pad: 1.25 }]
+
+loop2:
+  - elements
+  - LoopCurrent: [["R1", "I1", "L2", "R2"], { label: "$I_2$", pad: 1.25 }]

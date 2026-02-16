@@ -1,0 +1,43 @@
+config:
+  fontsize: 12
+
+A:
+  - elements
+  - Dot: [{ label: "a" }]
+
+C1:
+  - elements
+  - Capacitor: [{ label: "8nF" }]
+
+C2:
+  - elements
+  - Capacitor: [{ label: "18nF" }]
+
+C3:
+  - elements
+  - Capacitor: [{ botlabel: "8nF", d: "down" }]
+
+C4:
+  - elements
+  - Capacitor: [{ botlabel: "32nF", d: "left" }]
+
+C5:
+  - elements
+  - Capacitor: [{ botlabel: "40nF" }]
+
+B:
+  - elements
+  - Dot: [{ label: "b" }]
+
+C6:
+  - elements
+  - Capacitor: [{ label: "2.8nF", endpts: ["C1.end", "C5.start"] }]
+
+C7:
+  - elements
+  - Capacitor: [{ endpts: ["C2.end", "C5.start"] }]
+  - label:
+      [
+        "5.6nF",
+        { loc: center, ofst: [-0.3, -0.1], halign: right, valign: bottom },
+      ]

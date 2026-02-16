@@ -1,0 +1,137 @@
+ant:
+  - dsp.Antenna
+
+arrow1:
+  - dsp.Arrow: [{ d: r, l: 1.5, botlabel: "$f_{RF}$" }]
+
+amp:
+  - dsp.Amp: [{ label: LNA }]
+
+line1:
+  - dsp.Line: [{ d: r, l: 0.6 }]
+
+dot:
+  - dsp.Dot
+
+push1:
+  - drawing_state
+  - push
+
+line2:
+  - dsp.Line: [{ l: 0.75 }]
+
+mix1:
+  - dsp.Mixer: [{ label: Mixer, lblofst: 0 }]
+
+arrow2:
+  - dsp.Arrow: [{ l: 1.5 }]
+
+lpf1:
+  - dsp.Filter: [{ response: lp, botlabel: LPF, lblofst: 0.2 }]
+
+line3:
+  - dsp.Line: [{ l: 0.5 }]
+
+adc1:
+  - dsp.Adc: [{ label: ADC }]
+
+arrow3:
+  - dsp.Arrow: [{ l: 1 }]
+
+dsp1:
+  - dsp.Ic:
+      [
+        {
+          pins:
+            [
+              { dsp.IcPin: { side: L } },
+              { dsp.IcPin: { side: L } },
+              { dsp.IcPin: { side: R } },
+            ],
+          size: [2.75, 5],
+          leadlen: 0,
+          anchor: inL2,
+          label: DSP,
+        },
+      ]
+
+arrow4:
+  - dsp.Arrow: [{ xy: "dsp1.inR1", l: 1 }]
+
+pop1:
+  - drawing_state
+  - pop
+
+line4:
+  - dsp.Line: [{ d: d, toy: "dsp1.inL1" }]
+
+arrow5:
+  - dsp.Arrow: [{ d: r, tox: "mix1.W" }]
+
+mix2:
+  - dsp.Mixer: [{ label: Mixer, lblofst: 0 }]
+
+arrow6:
+  - dsp.Arrow: [{ tox: "lpf1.W" }]
+
+lpf2:
+  - dsp.Filter: [{ response: lp, botlabel: LPF, lblofst: 0.2 }]
+
+line5:
+  - dsp.Line: [{ tox: "adc1.W" }]
+
+adc2:
+  - dsp.Adc: [{ label: ADC }]
+
+arrow7:
+  - dsp.Arrow: [{ to: "dsp1.inL1" }] # inL1 is pin?
+
+arrow8:
+  - dsp.Arrowhead: [{ xy: "mix1.S", d: u }]
+
+line6:
+  - dsp.Line: [{ d: d, xy: "mix1.S", l: 0.5 }]
+
+line7:
+  - dsp.Line: [{ d: l, l: 3.75 }]
+
+line8:
+  - dsp.Line: [{ d: d, l: 2.25 }]
+
+flo:
+  - dsp.Dot: [{ lftlabel: "$f_{LO}$" }]
+
+push2:
+  - drawing_state
+  - push
+
+line9:
+  - dsp.Line: [{ d: d, l: 0.6 }]
+
+osc:
+  - dsp.Oscillator: [{ d: r, rgtlabel: LO, anchor: N, lblofst: 0.15 }]
+
+pop2:
+  - drawing_state
+  - pop
+
+arrow9:
+  - dsp.Arrowhead: [{ d: u, xy: "mix2.S" }]
+
+line10:
+  - dsp.Line: [{ d: d, xy: "mix2.S", l: 0.75 }]
+
+b1:
+  - dsp.Square: [{ d: r, label: "90°", anchor: N }]
+
+arrow10:
+  - dsp.Arrowhead: [{ d: r, xy: "b1.W" }]
+
+line11:
+  - dsp.Line: [{ d: l, xy: "b1.W", l: 0.75 }]
+
+line12:
+  - dsp.Line: [{ d: u, toy: "flo.center" }]
+
+line13:
+  - dsp.Line: [{ d: l, tox: "flo.center" }]

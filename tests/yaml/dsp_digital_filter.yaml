@@ -1,0 +1,152 @@
+config:
+  unit: 1
+  fontsize: 14
+
+line1:
+  - dsp.Line: [{ lftlabel: "x[n]", l: 2 }]
+
+dot1:
+  - dsp.Dot
+
+push1:
+  - drawing_state
+  - push
+
+line2:
+  - dsp.Line: [{ d: r }]
+
+amp1:
+  - dsp.Amp: [{ botlabel: "$b_0$" }]
+
+arrow1:
+  - dsp.Arrow
+
+s0:
+  - dsp.Sum: [{ anchor: W }]
+
+pop1:
+  - drawing_state
+  - pop
+
+arrow2:
+  - dsp.Arrow: [{ d: d }]
+
+z1:
+  - dsp.Square: [{ label: "$z^{-1}$" }]
+
+line3:
+  - dsp.Line: [{ l: 0.5 }]
+
+dot2:
+  - dsp.Dot
+
+push2:
+  - drawing_state
+  - push
+
+line4:
+  - dsp.Line: [{ d: r }]
+
+amp2:
+  - dsp.Amp: [{ botlabel: "$b_1$" }]
+
+arrow3:
+  - dsp.Arrow
+
+s1:
+  - dsp.Sum: [{ anchor: W }]
+
+pop2:
+  - drawing_state
+  - pop
+
+arrow4:
+  - dsp.Arrow: [{ d: d, l: 0.75 }]
+
+z2:
+  - dsp.Square: [{ label: "$z^{-1}$" }]
+
+line5:
+  - dsp.Line: [{ l: 0.75 }]
+
+line6:
+  - dsp.Line: [{ d: r }]
+
+amp3:
+  - dsp.Amp: [{ botlabel: "$b_2$" }]
+
+arrow5:
+  - dsp.Arrow
+
+s2:
+  - dsp.Sum: [{ anchor: W }]
+
+arrow6:
+  - dsp.Arrow: [{ d: u, xy: "s2.N", toy: "s1.S" }]
+
+arrow7:
+  - dsp.Arrow: [{ d: u, xy: "s1.N", toy: "s0.S" }]
+
+line7:
+  - dsp.Line: [{ d: r, xy: "s0.E", l: 2.75 }]
+
+dot_line7:
+  - dsp.Dot
+
+push3:
+  - drawing_state
+  - push
+
+arrow8:
+  - dsp.Arrow: [{ d: r, rgtlabel: "y[n]" }]
+
+pop3:
+  - drawing_state
+  - pop
+
+arrow9:
+  - dsp.Arrow: [{ d: d }]
+
+z3:
+  - dsp.Square: [{ label: "$z^{-1}$" }]
+
+line8:
+  - dsp.Line: [{ l: 0.5 }]
+
+dot3:
+  - dsp.Dot
+
+push4:
+  - drawing_state
+  - push
+
+line9:
+  - dsp.Line: [{ d: l }]
+
+a1:
+  - dsp.Amp: [{ botlabel: "$-a_1$" }]
+
+arrow10:
+  - dsp.Arrow: [{ xy: "a1.out", tox: "s1.E" }]
+
+pop4:
+  - drawing_state
+  - pop
+
+arrow11:
+  - dsp.Arrow: [{ d: d, l: 0.75 }]
+
+z4:
+  - dsp.Square: [{ label: "$z^{-1}$" }]
+
+line10:
+  - dsp.Line: [{ l: 0.75 }]
+
+line11:
+  - dsp.Line: [{ d: l }]
+
+a2:
+  - dsp.Amp: [{ botlabel: "$-a_2$" }]
+
+arrow12:
+  - dsp.Arrow: [{ xy: "a2.out", tox: "s2.E" }]

@@ -1,0 +1,101 @@
+G1:
+  - logic.Nand: [{ anchor: in1 }]
+
+line1:
+  - logic.Line: [{ l: 0.5 }]
+
+Q1:
+  - logic.Dot
+
+line2:
+  - logic.Line: [{ l: 0.5 }]
+
+Q2:
+  - logic.Dot
+
+line3:
+  - logic.Line: [{ l: 1, rgtlabel: "$Q$" }]
+
+gapG2:
+  - elements.Gap: [{ xy: "G1.in1", d: down, l: 2.5 }]
+
+G2:
+  - logic.Nand: [{ anchor: in1 }]
+
+line4:
+  - logic.Line: [{ l: 0.5 }]
+
+Qb:
+  - logic.Dot
+
+line5:
+  - logic.Line: [{ l: 1 }]
+
+Qb2:
+  - logic.Dot
+
+line6:
+  - logic.Line: [{ l: 0.5, rgtlabel: "$\\overline{Q}$" }]
+
+S1:
+  - logic.Line: [{ xy: "G2.in1", d: up, l: 0.5 }]
+
+line7:
+  - logic.Line: [{ d: down, xy: "Q1.start", l: 0.5 }]
+
+line8:
+  - logic.Line: [{ to: "S1.end" }]
+
+R1:
+  - logic.Line: [{ d: down, xy: "G1.in2", l: 0.5 }]
+
+line9:
+  - logic.Line: [{ d: up, xy: "Qb.start", l: 0.5 }]
+
+line10:
+  - logic.Line: [{ to: "R1.end" }]
+
+line11:
+  - logic.Line: [{ d: left, xy: "G1.in1", l: 0.5 }]
+
+J:
+  - logic.Nand: [{ inputs: 3, anchor: out, reverse: true }]
+
+line12:
+  - logic.Line: [{ d: up, xy: "J.in3", l: 0.5 }]
+
+line13:
+  - logic.Line: [{ d: right, tox: "Qb2.start" }]
+
+line14:
+  - logic.Line: [{ d: down, toy: "Qb2.start" }]
+
+line15:
+  - logic.Line: [{ d: left, xy: "J.in2", l: 0.75, lftlabel: "$J$" }]
+
+line16:
+  - logic.Line: [{ d: left, xy: "G2.in2", l: 0.5 }]
+
+K:
+  - logic.Nand: [{ inputs: 3, anchor: out, reverse: true }]
+
+line17:
+  - logic.Line: [{ d: down, xy: "K.in1", l: 0.5 }]
+
+line18:
+  - logic.Line: [{ d: right, tox: "Q2.start" }]
+
+line19:
+  - logic.Line: [{ d: up, toy: "Q2.start" }]
+
+line20:
+  - logic.Line: [{ d: left, xy: "K.in2", l: 0.75, lftlabel: "$K$" }]
+
+C:
+  - logic.Line: [{ d: down, xy: "J.in1", toy: "K.in3" }]
+
+dot1:
+  - logic.Dot: [{ xy: "C.center" }]
+
+lineCLK:
+  - logic.Line: [{ d: left, xy: "C.center", l: 0.75, lftlabel: "$CLK$" }]

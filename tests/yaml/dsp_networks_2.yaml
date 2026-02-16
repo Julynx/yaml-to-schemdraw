@@ -1,0 +1,55 @@
+config:
+  fontsize: 14
+
+line1:
+  - dsp.Line: [{ l: 1.5, label: "F(s)" }] # unit/2
+
+push1:
+  - drawing_state
+  - push
+
+dot:
+  - dsp.Dot
+
+line2:
+  - dsp.Line: [{ d: u, l: 1.5 }]
+
+arrow1:
+  - dsp.Arrow: [{ d: r, l: 1.5 }]
+
+h1:
+  - dsp.Box: [{ w: 2, h: 2, label: "$H_1(s)$", anchor: W }]
+
+pop1:
+  - drawing_state
+  - pop
+
+line3:
+  - dsp.Line: [{ d: d, l: 1.5 }]
+
+arrow2:
+  - dsp.Arrow: [{ d: r, l: 1.5 }]
+
+h2:
+  - dsp.Box: [{ w: 2, h: 2, label: "$H_2(s)$", anchor: W }]
+
+sm:
+  - dsp.SumSigma: [{ d: r, xy: [6.5, 0], anchor: center }]
+
+line4:
+  - dsp.Line: [{ d: r, xy: "h1.E", tox: "sm.N" }]
+
+arrow3:
+  - dsp.Arrow: [{ d: d, toy: "sm.N" }]
+
+line5:
+  - dsp.Line: [{ d: r, xy: "h2.E", tox: "sm.S" }]
+
+arrow4:
+  - dsp.Arrow: [{ d: u, toy: "sm.S" }]
+
+line6:
+  - dsp.Line: [{ d: r, xy: "sm.E", l: 1 }]
+
+arrow5:
+  - dsp.Arrowhead: [{ label: "Y(s)" }]

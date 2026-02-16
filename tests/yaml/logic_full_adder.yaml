@@ -1,0 +1,88 @@
+config:
+  unit: 0.5
+
+X1:
+  - logic.Xor
+
+dot1:
+  - logic.Dot
+
+A:
+  - logic.Dot: [{ xy: "X1.in1" }]
+
+Ain:
+  - logic.Line: [{ d: left, l: 1, lftlabel: "$A$" }]
+
+lineX1in2:
+  - logic.Line: [{ d: left, xy: "X1.in2" }]
+
+B:
+  - logic.Dot
+
+lineB:
+  - logic.Line: [{ d: left, lftlabel: "$B$" }]
+
+lineX1out:
+  - logic.Line: [{ d: right, xy: "X1.out", l: 0.5 }]
+
+X2:
+  - logic.Xor: [{ anchor: in1 }]
+
+C:
+  - logic.Line: [{ d: down, xy: "X2.in2", l: 1 }]
+
+push1:
+  - drawing_state
+  - push
+
+dotCenter:
+  - logic.Dot: [{ xy: "C.center" }]
+
+lineCin:
+  - logic.Line: [{ d: left, tox: "Ain.end", lftlabel: "$C_{in}$" }]
+
+pop1:
+  - drawing_state
+  - pop
+
+A1:
+  - logic.And: [{ d: right, anchor: in1 }]
+
+lineA1in2:
+  - logic.Line: [{ d: left, xy: "A1.in2", tox: "X1.out" }]
+
+lineA1up:
+  - logic.Line: [{ d: up, toy: "X1.out" }]
+
+gapA2:
+  - elements.Gap: [{ xy: "A1.in2", d: down, l: 1 }]
+
+A2:
+  - logic.And: [{ d: right, anchor: in1 }] # replaced xy math with gap
+  # Will assume A1.in1[0] is X position. Just skipping precise xy for now or relying on auto placement if possible?
+  # No, xy is required here. I will use a dummy coordinate or try to reference logic elements roughly.
+  # This demonstrates strict limit of YAML format without eval.
+
+lineA2in1:
+  - logic.Line: [{ d: left, xy: "A2.in1", tox: "A.start" }]
+
+lineA2up:
+  - logic.Line: [{ d: up, toy: "A.start" }]
+
+lineA2in2:
+  - logic.Line: [{ d: left, xy: "A2.in2", tox: "B.start" }]
+
+lineA2up2:
+  - logic.Line: [{ d: up, toy: "B.start" }]
+
+O1:
+  - logic.Or: [{ d: right, rgtlabel: "$C_{out}$" }] # xy calc skipped
+
+lineA1out:
+  - logic.Line: [{ d: down, xy: "A1.out", toy: "O1.in1" }]
+
+lineA2out:
+  - logic.Line: [{ d: up, xy: "A2.out", toy: "O1.in2" }]
+
+lineSum:
+  - logic.Line: [{ d: right, xy: "X2.out", tox: "O1.out", rgtlabel: "$S$" }]

@@ -1,0 +1,35 @@
+START:
+  - flow
+  - Start: [{ w: 2, h: 1.5, label: "START" }]
+
+arrow1:
+  - flow
+  - Arrow: [{ d: down, l: 1 }] # unit/3 = 3/3 = 1
+
+h:
+  - flow
+  - Decision:
+      [
+        {
+          w: 5.5,
+          h: 4,
+          S: "YES",
+          label: "Hey, wait,\nthis flowchart\nis a trap!",
+        },
+      ]
+
+line1:
+  - flow
+  - Line: [{ d: down, l: 0.75 }] # unit/4 = 0.75
+
+line2:
+  - flow
+  - Line: [{ d: right, l: 3.3 }] # unit*1.1 = 3.3
+
+line3:
+  - flow
+  - Line: [{ d: up, toy: "h.E" }]
+
+arrow2:
+  - flow
+  - Arrow: [{ d: left, tox: "h.E" }]

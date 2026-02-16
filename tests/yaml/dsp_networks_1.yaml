@@ -1,0 +1,42 @@
+# Network 1
+line1:
+  - dsp.Line: [{ l: 1, label: "in" }] # unit/3
+
+inpt:
+  - dsp.Dot
+
+arrow1:
+  - dsp.Arrow: [{ l: 1 }]
+
+delay:
+  - dsp.Box: [{ w: 2, h: 2, label: "Delay\nT", anchor: W }]
+
+arrow2:
+  - dsp.Arrow: [{ d: r, l: 1.5, xy: "delay.E" }] # unit/2
+
+sm:
+  - dsp.SumSigma
+
+arrow3:
+  - dsp.Arrow: [{ xy: "sm.E", l: 1.5 }]
+
+intg:
+  - dsp.Box: [{ w: 2, h: 2, label: "$\\int$", anchor: W }]
+
+line2:
+  - dsp.Line: [{ d: r, xy: "intg.E", l: 1.5 }]
+
+out:
+  - dsp.Arrowhead: [{ label: "out" }]
+
+line3:
+  - dsp.Line: [{ d: d, xy: "inpt.center", l: 1.5 }]
+
+line4:
+  - dsp.Line: [{ d: r, tox: "sm.S" }]
+
+line5:
+  - dsp.Line: [{ d: u, toy: "sm.S" }]
+
+arrow_plus:
+  - dsp.Arrowhead: [{ botlabel: "+" }]
