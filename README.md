@@ -78,7 +78,6 @@ from yaml_to_schemdraw import from_yaml_file
 # "from_yaml_string" and "from_dict" are also available
 
 diagram = from_yaml_file("diagram.yaml")
-diagram.save("test.svg")
 ```
 
 You can now call `diagram.draw()` or `diagram.save("diagram.svg")` as usual.
