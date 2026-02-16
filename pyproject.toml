@@ -6,5 +6,9 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["ruamel-yaml", "schemdraw"]
 
+[project.urls]
+Homepage = "https://github.com/Julynx/yaml-to-schemdraw"
+Repository = "https://github.com/Julynx/yaml-to-schemdraw"
+
 [dependency-groups]
 dev = ["pylint", "pytest"]
