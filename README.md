@@ -74,13 +74,11 @@ And can be loaded with this library as follows:
 ## Usage
 
 ```python
-from pathlib import Path
-from ruamel.yaml import YAML
-from yaml_to_schemdraw import from_dict
+from yaml_to_schemdraw import from_yaml_file
+# "from_yaml_string" and "from_dict" are also available
 
-yaml = YAML()
-spec = yaml.load(Path("diagram.yaml").read_text())
-diagram = from_dict(spec)  # <- Schemdraw diagram object
+diagram = from_yaml_file("diagram.yaml")
+diagram.save("test.svg")
 ```
 
 You can now call `diagram.draw()` or `diagram.save("diagram.svg")` as usual.
