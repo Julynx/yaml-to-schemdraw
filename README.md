@@ -82,6 +82,8 @@ diagram = from_yaml_file("diagram.yaml")
 
 You can now call `diagram.draw()` or `diagram.save("diagram.svg")` as usual.
 
+![diagram](https://i.imgur.com/89mZNP1.png)
+
 ## Why?
 
 Schemdraw was always intended to be used as a Python library, with developers manually writing diagrams in code.
@@ -96,6 +98,6 @@ The module parses the dictionary and resolves the function calls against the sch
 
 Internally, it uses `getattr()` to resolve function calls, with an attribute whitelist to prevent module escalation.
 
-It can easily and safely parse most of the schemdraw examples library, which was used to generate the included whitelist.
+It can easily and safely parse most of the [schemdraw circuit gallery](https://schemdraw.readthedocs.io/en/stable/gallery/index.html), which was used to generate the included whitelist.
 
 If you encounter any valid diagrams that cannot be parsed (or easily adapted into something that this module can parse), please open an issue.
