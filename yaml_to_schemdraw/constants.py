@@ -355,4 +355,6 @@ ALLOWED_METHODS = [
     "StateEnd",
     "Subroutine",
     "labelsize",
+    "font",
+    "fontsize",
 ]

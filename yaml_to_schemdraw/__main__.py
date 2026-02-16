@@ -1,28 +1,109 @@
+import types
 from typing import Any, Dict, List, Optional, Tuple
 
 import schemdraw
 import schemdraw.dsp
+import schemdraw.elements
 import schemdraw.flow
 import schemdraw.logic
 
-try:
-    from .constants import ALLOWED_METHODS
-except ImportError:
-    from constants import ALLOWED_METHODS
+from .constants import ALLOWED_METHODS
 
+# --- Security Configuration ---
+
+# 1. Resource Limits (DoS Prevention)
+MAX_RECURSION_DEPTH = 10
+MAX_COMPONENT_COUNT = 1000
 MIN_SPLIT_LENGTH = 2
+
+# 2. Module Whitelist
+ALLOWED_MODULES = {
+    "schemdraw": schemdraw,
+    "elements": schemdraw.elements,
+    "dsp": schemdraw.dsp,
+    "flow": schemdraw.flow,
+    "logic": schemdraw.logic,
+}
+
+ALLOWED_DRAWING_METHODS = {
+    "push",
+    "pop",
+    "move",
+    "here",
+    "add_label",
+    "add",
+}
+
+
+class SecurityError(Exception):
+    """Raised when a security constraint is violated."""
+
+    pass
+
+
+def _validate_method_name(name: str, allowlist: set) -> None:
+    """Ensures method name is in the strict allowlist."""
+    if name not in allowlist:
+        raise SecurityError(f"Method '{name}' is not allowed.")
+    if name.startswith("_"):
+        raise SecurityError(f"Access to private attribute '{name}' is forbidden.")
+
+
+def _resolve_allowlisted_component(name: str) -> Any:
+    """
+    Resolves a string to a schemdraw class/function OR module using a strict whitelist.
+
+    Args:
+        name: e.g. 'elements.Resistor' (Class) or 'elements' (Module)
+    """
+    parts = name.split(".")
+
+    if len(parts) < 1 or len(parts) > MIN_SPLIT_LENGTH:
+        raise SecurityError(
+            f"Invalid component reference '{name}'. Must be 'module.Class' or 'module'."
+        )
+
+    module_name = parts[0]
+
+    if module_name not in ALLOWED_MODULES:
+        raise SecurityError(f"Module '{module_name}' is not in the allowlist.")
+
+    obj = ALLOWED_MODULES[module_name]
+
+    if len(parts) == MIN_SPLIT_LENGTH:
+        class_name = parts[1]
+        if class_name.startswith("_"):
+            raise SecurityError(
+                f"Access to private attribute '{class_name}' forbidden."
+            )
+
+        if not hasattr(obj, class_name):
+            raise AttributeError(
+                f"Module '{module_name}' has no attribute '{class_name}'"
+            )
+
+        obj = getattr(obj, class_name)
+
+    # FINAL CHECK: Allow types (classes), callables, AND modules.
+    # Allowing modules is necessary for the split syntax ['elements', 'Resistor'].
+    if not (isinstance(obj, (type, types.ModuleType)) or callable(obj)):
+        raise SecurityError(
+            f"Resolved object '{name}' is not a valid component class or module."
+        )
+
+    return obj
 
 
 def from_dict(dictionary: Dict[str, Any]) -> schemdraw.Drawing:
-    """Builds a schemdraw.Drawing object from a dictionary definition.
+    """Builds a schemdraw.Drawing object from a dictionary definition."""
 
-    Args:
-        dictionary: The dictionary containing the drawing definition.
+    if len(dictionary) > MAX_COMPONENT_COUNT:
+        raise SecurityError("Input dictionary exceeds maximum component count.")
 
-    Returns:
-        The configured schemdraw.Drawing object.
-    """
     config = dictionary.pop("config", {})
+    if not isinstance(config, dict):
+        config = {}
+
     with schemdraw.Drawing(show=False, **config) as drawing:
         components = {}
         for key, value in dictionary.items():
@@ -44,64 +125,36 @@ def from_dict(dictionary: Dict[str, Any]) -> schemdraw.Drawing:
 
 
 def _is_drawing_state(value: Any) -> bool:
-    """Checks if the value represents a drawing state command.
-
-    Args:
-        value: The value to check.
-
-    Returns:
-        True if the value is a drawing state command, False otherwise.
-    """
     return isinstance(value, list) and len(value) > 0 and value[0] == "drawing_state"
 
 
 def _handle_drawing_state(value: List[str], drawing: schemdraw.Drawing) -> None:
-    """Handles drawing state commands like push and pop.
-
-    Args:
-        value: The command list (e.g., ['drawing_state', 'push']).
-        drawing: The schemdraw.Drawing object.
-    """
     if len(value) < MIN_SPLIT_LENGTH:
         return
     command = value[1]
-    if command == "push":
-        drawing.push()
-    elif command == "pop":
-        drawing.pop()
+
+    _validate_method_name(command, ALLOWED_DRAWING_METHODS)
+
+    if hasattr(drawing, command):
+        getattr(drawing, command)()
 
 
 def _is_drawing_method(value: Any) -> bool:
-    """Checks if the value represents a drawing method call.
-
-    Args:
-        value: The value to check.
-
-    Returns:
-        True if the value is a drawing method call, False otherwise.
-    """
     return isinstance(value, list) and len(value) > 0 and value[0] == "drawing_method"
 
 
 def _handle_drawing_method(
     value: List[Any], drawing: schemdraw.Drawing, components: Dict[str, Any]
 ) -> None:
-    """Handles drawing methods like move.
-
-    Args:
-        value: The method call list (e.g., ['drawing_method', 'move', ...]).
-        drawing: The schemdraw.Drawing object.
-        components: A dictionary of existing components for reference resolution.
-
-    Raises:
-        AttributeError: If the method does not exist on the drawing object.
-    """
     if len(value) < MIN_SPLIT_LENGTH:
         return
     method_name = value[1]
     args = value[2:]
 
-    positional, keyword = _build_args_kwargs(args, method_name, components, drawing)
+    _validate_method_name(method_name, ALLOWED_DRAWING_METHODS)
+    positional, keyword = _build_args_kwargs(
+        args, method_name, components, drawing, depth=0
+    )
 
     if hasattr(drawing, method_name):
         method = getattr(drawing, method_name)
@@ -111,26 +164,19 @@ def _handle_drawing_method(
 
 
 def _resolve_reference(value: str, components: Dict[str, Any]) -> Any:
-    """Resolves a component reference string (e.g. 'S1.c') to the actual object
-    attribute.
-
-    Args:
-        value: The reference string.
-        components: A dictionary of existing components.
-
-    Returns:
-        The resolved attribute or object.
-
-    Raises:
-        ValueError: If the component name (first part of the reference) is not found.
-    """
     parts = value.split(".")
+    if any(part.startswith("_") for part in parts):
+        raise SecurityError("References cannot contain private attributes.")
+
     obj = components.get(parts[0])
     if obj is None:
         raise ValueError(f"Component '{parts[0]}' not found")
 
     for part in parts[1:]:
+        if not hasattr(obj, part):
+            raise AttributeError(f"Object has no attribute '{part}'")
         obj = getattr(obj, part)
+
     return obj
 
 
@@ -139,53 +185,37 @@ def _process_value(
     method_name: str,
     components: Dict[str, Any],
     drawing: schemdraw.Drawing,
+    depth: int,
 ) -> Any:
-    """Processes a single value, handling references, types, and recursive structures.
+    if depth > MAX_RECURSION_DEPTH:
+        raise SecurityError("Maximum recursion depth exceeded.")
 
-    This function handles:
-    - String references to other components.
-    - Numeric scaling for positioning methods.
-    - Recursive processing of lists and dictionaries.
-    - Nested chain execution for component definitions within dictionaries.
-
-    Args:
-        value: The value to process.
-        method_name: The name of the method where this value is used (for context).
-        components: A dictionary of existing components.
-        drawing: The schemdraw.Drawing object.
-
-    Returns:
-        The processed value.
-    """
     if isinstance(value, str):
         if value.split(".")[0] in components:
             return _resolve_reference(value, components)
         return value
 
     if isinstance(value, (int, float)):
-        # Apply scaling for positioning methods
-        positioning_methods = {"right", "left", "up", "down"}
+        positioning_methods = {"right", "left", "up", "down", "tox", "toy"}
         if method_name in positioning_methods:
             return drawing.unit * value
         return value
 
     if isinstance(value, list):
-        return [_process_value(val, method_name, components, drawing) for val in value]
+        return [
+            _process_value(val, method_name, components, drawing, depth + 1)
+            for val in value
+        ]
 
     if isinstance(value, dict):
-        # Allow nested chain execution if it looks like a component definition
-        # dictionary of length 1 is often a method call or component def in this DSL
         if len(value) == 1:
             try:
-                # Tentatively try to execute it as a chain/component
-                # This mirrors the original logic to handle nested definitions
-                return _execute_chain([value], components, drawing)
-            except Exception:
-                # logic fall-through to standard dict processing
+                return _execute_chain([value], components, drawing, depth + 1)
+            except (ValueError, AttributeError, SecurityError):
                 pass
 
         return {
-            key: _process_value(val, method_name, components, drawing)
+            key: _process_value(val, method_name, components, drawing, depth + 1)
             for key, val in value.items()
         }
 
@@ -197,20 +227,8 @@ def _build_args_kwargs(
     method_name: str,
     components: Dict[str, Any],
     drawing: schemdraw.Drawing,
+    depth: int = 0,
 ) -> Tuple[List[Any], Dict[str, Any]]:
-    """Separates and processes positional and keyword arguments.
-
-    Args:
-        args: A list of mixed positional and keyword arguments (as dicts).
-        method_name: The name of the method these arguments are for.
-        components: A dictionary of existing components.
-        drawing: The schemdraw.Drawing object.
-
-    Returns:
-        A tuple containing:
-        - A list of processed positional arguments.
-        - A dictionary of processed keyword arguments.
-    """
     args = args or []
     positional = []
     keyword = {}
@@ -222,133 +240,106 @@ def _build_args_kwargs(
             positional.append(arg)
 
     processed_positional = [
-        _process_value(arg, method_name, components, drawing) for arg in positional
+        _process_value(arg, method_name, components, drawing, depth)
+        for arg in positional
     ]
     processed_keyword = {
-        key: _process_value(val, method_name, components, drawing)
+        key: _process_value(val, method_name, components, drawing, depth)
         for key, val in keyword.items()
     }
 
     return processed_positional, processed_keyword
 
 
-def _resolve_object(name: str) -> Any:
-    """Resolves a dot-notation string to a Python object.
-
-    Args:
-        name: The dot-notation string (e.g., 'schemdraw.elements.Resistor').
-
-    Returns:
-        The resolved Python object.
-
-    Raises:
-        AttributeError: If any part of the path cannot be resolved.
-    """
-    obj = schemdraw
-    for part in name.split("."):
-        obj = getattr(obj, part)
-    return obj
-
-
 def _execute_chain(
-    component_def: List[Any], components: Dict[str, Any], drawing: schemdraw.Drawing
+    component_def: List[Any],
+    components: Dict[str, Any],
+    drawing: schemdraw.Drawing,
+    depth: int = 0,
 ) -> Optional[Any]:
-    """Executes a chain of method calls to instantiate and configure a component.
-
-    This function handles two main formats:
-    1. [ModulePath, ClassName, Method1, ...] -> e.g. ['elements', 'Resistor', ...]
-    2. [ClassPath, Method1, ...] -> e.g. ['elements.Gap', ...]
-
-    Args:
-        component_def: A list defining the component and associated method calls.
-        components: A dictionary of existing components for reference resolution.
-        drawing: The schemdraw.Drawing object.
-
-    Returns:
-        The instantiated and configured component object, or None if the definition is
-        empty.
-
-    Raises:
-        ValueError: If an invalid method name is encountered.
-        AttributeError: If a class or method cannot be found.
-    """
     if len(component_def) == 0:
         return None
 
-    # 1. Process first item (Module or Class)
+    # 1. Parsing the Root Object
     item = component_def[0]
+    args = []
+
     if isinstance(item, dict):
         name = list(item.keys())[0]
-        args = item[name]
-        # Normalize dict args to list
-        if isinstance(args, dict):
-            args = [args]
-        elif not isinstance(args, list):
-            args = [args]
+        raw_args = item[name]
+        args = (
+            [raw_args]
+            if isinstance(raw_args, dict)
+            else (raw_args if isinstance(raw_args, list) else [raw_args])
+        )
     else:
         name = item
         args = []
 
-    obj = _resolve_object(name)
-
+    obj = _resolve_allowlisted_component(name)
     start_index = 1
 
-    # Check if the first item is itself callable (e.g. Class or Function)
+    # Instantiate if it is a Class/Callable
     if callable(obj):
-        positional, keyword = _build_args_kwargs(args, name, components, drawing)
+        positional, keyword = _build_args_kwargs(args, name, components, drawing, depth)
         obj = obj(*positional, **keyword)
 
-    # If not callable, it might be a module (e.g. 'elements').
-    # Look at the next item for the class.
+    # 2. Handling split format: ['elements', 'Resistor']
     elif len(component_def) > 1:
-        start_index = 2
-        class_item = component_def[1]
+        if isinstance(obj, types.ModuleType):
+            start_index = 2
+            class_item = component_def[1]
 
-        if isinstance(class_item, dict):
-            class_name = list(class_item.keys())[0]
-            class_args = class_item[class_name]
-            if isinstance(class_args, dict):
-                class_args = [class_args]
-            elif not isinstance(class_args, list):
-                class_args = [class_args]
-        else:
-            class_name = class_item
-            class_args = []
-
-        if hasattr(obj, class_name):
-            obj_class = getattr(obj, class_name)
-            if callable(obj_class):
-                positional, keyword = _build_args_kwargs(
-                    class_args, class_name, components, drawing
+            if isinstance(class_item, dict):
+                class_name = list(class_item.keys())[0]
+                class_args = class_item[class_name]
+                class_args = (
+                    [class_args]
+                    if isinstance(class_args, dict)
+                    else (class_args if isinstance(class_args, list) else [class_args])
                 )
-                obj = obj_class(*positional, **keyword)
             else:
-                obj = obj_class
-        else:
-            raise AttributeError(f"Module {name} has no attribute {class_name}")
+                class_name = class_item
+                class_args = []
 
-    # 3. Process remaining items as methods on the instance
+            if class_name.startswith("_"):
+                raise SecurityError(f"Private class '{class_name}' forbidden.")
+
+            if hasattr(obj, class_name):
+                obj_class = getattr(obj, class_name)
+                # Verify the resolved attribute is actually callable (a class)
+                if callable(obj_class):
+                    positional, keyword = _build_args_kwargs(
+                        class_args, class_name, components, drawing, depth
+                    )
+                    obj = obj_class(*positional, **keyword)
+                else:
+                    # It might be a constant or pre-instantiated object in the module
+                    obj = obj_class
+            else:
+                raise AttributeError(f"Module {name} has no attribute {class_name}")
+
+    # 3. Process Method Chain
     for item in component_def[start_index:]:
         if isinstance(item, dict):
             method_name = list(item.keys())[0]
-            args = item[method_name]
+            raw_args = item[method_name]
+            args = (
+                [raw_args]
+                if isinstance(raw_args, dict)
+                else (raw_args if isinstance(raw_args, list) else [raw_args])
+            )
         else:
             method_name = item
             args = []
 
-        if method_name not in ALLOWED_METHODS:
-            raise ValueError(f"Method '{method_name}' not allowed")
-
-        if isinstance(args, dict):
-            args = [args]
-        elif not isinstance(args, list):
-            args = [args]
-
-        positional, keyword = _build_args_kwargs(args, method_name, components, drawing)
+        _validate_method_name(method_name, ALLOWED_METHODS)
+        positional, keyword = _build_args_kwargs(
+            args, method_name, components, drawing, depth
+        )
 
         if hasattr(obj, method_name):
             method = getattr(obj, method_name)
-            # Method chaining: schemdraw methods usually return self
             result = method(*positional, **keyword)
             if result is not None:
                 obj = result
