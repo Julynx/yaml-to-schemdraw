@@ -1,6 +1,10 @@
 version = 1
 revision = 3
-requires-python = ">=3.14"
+requires-python = ">=3.11"
+resolution-markers = [
+    "python_full_version >= '3.12'",
+    "python_full_version < '3.12'",
+]
 
 [[package]]
 name = "astroid"
@@ -170,12 +174,12 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "ruamel-yaml", specifier = ">=0.19.1" },
-    { name = "schemdraw", specifier = ">=0.22" },
+    { name = "ruamel-yaml" },
+    { name = "schemdraw" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "pylint", specifier = ">=4.0.4" },
-    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "pylint" },
+    { name = "pytest" },
 ]

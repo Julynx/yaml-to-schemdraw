@@ -1,13 +1,10 @@
 [project]
 name = "yaml-to-schemdraw"
 version = "0.1.0"
-description = "Add your description here"
+description = "Generate schemdraw diagrams from YAML files or Python dictionaries."
 readme = "README.md"
-requires-python = ">=3.14"
-dependencies = ["ruamel-yaml>=0.19.1", "schemdraw>=0.22"]
+requires-python = ">=3.11"
+dependencies = ["ruamel-yaml", "schemdraw"]
 
 [dependency-groups]
-dev = [
-    "pylint>=4.0.4",
-    "pytest>=9.0.2",
-]
+dev = ["pylint", "pytest"]

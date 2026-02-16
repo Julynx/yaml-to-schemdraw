@@ -2,12 +2,14 @@
 Convert YAML to Schemdraw
 """
 
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import schemdraw
 import schemdraw.dsp
 import schemdraw.flow
 import schemdraw.logic
+from ruamel.yaml import YAML
 
 from .constants import ALLOWED_ATTRS
 
@@ -42,6 +44,32 @@ def from_dict(dictionary: Dict[str, Any]) -> schemdraw.Drawing:
                 drawing.add(result)
 
         return drawing
+
+
+def from_yaml_file(file_path: str) -> schemdraw.Drawing:
+    """Builds a schemdraw.Drawing object from a YAML file definition.
+
+    Args:
+        file_path: The path to the YAML file containing the drawing definition.
+
+    Returns:
+        The configured schemdraw.Drawing object.
+    """
+    yaml = YAML()
+    return from_dict(yaml.load(Path(file_path)))
+
+
+def from_yaml_string(yaml_string: str) -> schemdraw.Drawing:
+    """Builds a schemdraw.Drawing object from a YAML string definition.
+
+    Args:
+        yaml_string: The YAML string containing the drawing definition.
+
+    Returns:
+        The configured schemdraw.Drawing object.
+    """
+    yaml = YAML()
+    return from_dict(yaml.load(yaml_string))
 
 
 def _safe_getattr(obj: Any, name: str) -> Any:
