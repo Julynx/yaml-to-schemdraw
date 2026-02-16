@@ -10,6 +10,8 @@ try:
 except ImportError:
     from constants import ALLOWED_METHODS
 
+MIN_SPLIT_LENGTH = 2
+
 
 def from_dict(dictionary: Dict[str, Any]) -> schemdraw.Drawing:
     """Builds a schemdraw.Drawing object from a dictionary definition.
@@ -60,7 +62,7 @@ def _handle_drawing_state(value: List[str], drawing: schemdraw.Drawing) -> None:
         value: The command list (e.g., ['drawing_state', 'push']).
         drawing: The schemdraw.Drawing object.
     """
-    if len(value) < 2:
+    if len(value) < MIN_SPLIT_LENGTH:
         return
     command = value[1]
     if command == "push":
@@ -94,7 +96,7 @@ def _handle_drawing_method(
     Raises:
         AttributeError: If the method does not exist on the drawing object.
     """
-    if len(value) < 2:
+    if len(value) < MIN_SPLIT_LENGTH:
         return
     method_name = value[1]
     args = value[2:]
@@ -109,7 +111,8 @@ def _handle_drawing_method(
 
 
 def _resolve_reference(value: str, components: Dict[str, Any]) -> Any:
-    """Resolves a component reference string (e.g. 'S1.c') to the actual object attribute.
+    """Resolves a component reference string (e.g. 'S1.c') to the actual object
+    attribute.
 
     Args:
         value: The reference string.
@@ -167,7 +170,7 @@ def _process_value(
         return value
 
     if isinstance(value, list):
-        return [_process_value(v, method_name, components, drawing) for v in value]
+        return [_process_value(val, method_name, components, drawing) for val in value]
 
     if isinstance(value, dict):
         # Allow nested chain execution if it looks like a component definition
@@ -182,8 +185,8 @@ def _process_value(
                 pass
 
         return {
-            k: _process_value(v, method_name, components, drawing)
-            for k, v in value.items()
+            key: _process_value(val, method_name, components, drawing)
+            for key, val in value.items()
         }
 
     return value
@@ -262,7 +265,8 @@ def _execute_chain(
         drawing: The schemdraw.Drawing object.
 
     Returns:
-        The instantiated and configured component object, or None if the definition is empty.
+        The instantiated and configured component object, or None if the definition is
+        empty.
 
     Raises:
         ValueError: If an invalid method name is encountered.
