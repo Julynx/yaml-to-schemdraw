@@ -1,3 +1,7 @@
+"""
+Module for converting YAML to SchemDraw.
+"""
+
 import types
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -7,42 +11,27 @@ import schemdraw.elements
 import schemdraw.flow
 import schemdraw.logic
 
-from .constants import ALLOWED_METHODS
-
-# --- Security Configuration ---
-
-# 1. Resource Limits (DoS Prevention)
-MAX_RECURSION_DEPTH = 10
-MAX_COMPONENT_COUNT = 1000
-MIN_SPLIT_LENGTH = 2
-
-# 2. Module Whitelist
-ALLOWED_MODULES = {
-    "schemdraw": schemdraw,
-    "elements": schemdraw.elements,
-    "dsp": schemdraw.dsp,
-    "flow": schemdraw.flow,
-    "logic": schemdraw.logic,
-}
-
-ALLOWED_DRAWING_METHODS = {
-    "push",
-    "pop",
-    "move",
-    "here",
-    "add_label",
-    "add",
-}
+from .constants import (
+    ALLOWED_DRAWING_METHODS,
+    ALLOWED_ELEMENT_METHODS,
+    ALLOWED_MODULES,
+    MAX_COMPONENT_COUNT,
+    MAX_RECURSION_DEPTH,
+    MIN_SPLIT_LENGTH,
+)
 
 
 class SecurityError(Exception):
     """Raised when a security constraint is violated."""
 
-    pass
+
+def _safe_getattr(obj: Any, name: str) -> Any:
+    if not hasattr(obj, name) or name.startswith("_"):
+        raise SecurityError(f"Object '{obj}' has no attribute '{name}'")
+    return getattr(obj, name)
 
 
 def _validate_method_name(name: str, allowlist: set) -> None:
-    """Ensures method name is in the strict allowlist."""
     if name not in allowlist:
         raise SecurityError(f"Method '{name}' is not allowed.")
     if name.startswith("_"):
@@ -50,12 +39,6 @@ def _validate_method_name(name: str, allowlist: set) -> None:
 
 
 def _resolve_allowlisted_component(name: str) -> Any:
-    """
-    Resolves a string to a schemdraw class/function OR module using a strict whitelist.
-
-    Args:
-        name: e.g. 'elements.Resistor' (Class) or 'elements' (Module)
-    """
     parts = name.split(".")
 
     if len(parts) < 1 or len(parts) > MIN_SPLIT_LENGTH:
@@ -82,10 +65,8 @@ def _resolve_allowlisted_component(name: str) -> Any:
                 f"Module '{module_name}' has no attribute '{class_name}'"
             )
 
-        obj = getattr(obj, class_name)
+        obj = _safe_getattr(obj, class_name)
 
-    # FINAL CHECK: Allow types (classes), callables, AND modules.
-    # Allowing modules is necessary for the split syntax ['elements', 'Resistor'].
     if not (isinstance(obj, (type, types.ModuleType)) or callable(obj)):
         raise SecurityError(
             f"Resolved object '{name}' is not a valid component class or module."
@@ -95,8 +76,9 @@ def _resolve_allowlisted_component(name: str) -> Any:
 
 
 def from_dict(dictionary: Dict[str, Any]) -> schemdraw.Drawing:
-    """Builds a schemdraw.Drawing object from a dictionary definition."""
-
+    """
+    Convert a dictionary (YAML or JSON spec) to a SchemDraw drawing.
+    """
     if len(dictionary) > MAX_COMPONENT_COUNT:
         raise SecurityError("Input dictionary exceeds maximum component count.")
 
@@ -125,22 +107,30 @@ def from_dict(dictionary: Dict[str, Any]) -> schemdraw.Drawing:
 
 
 def _is_drawing_state(value: Any) -> bool:
-    return isinstance(value, list) and len(value) > 0 and value[0] == "drawing_state"
+    return (
+        isinstance(value, (list, tuple))
+        and len(value) > 0
+        and str(value[0]) == "drawing_state"
+    )
 
 
 def _handle_drawing_state(value: List[str], drawing: schemdraw.Drawing) -> None:
     if len(value) < MIN_SPLIT_LENGTH:
         return
-    command = value[1]
+    command = str(value[1])
 
     _validate_method_name(command, ALLOWED_DRAWING_METHODS)
 
     if hasattr(drawing, command):
-        getattr(drawing, command)()
+        _safe_getattr(drawing, command)()
 
 
 def _is_drawing_method(value: Any) -> bool:
-    return isinstance(value, list) and len(value) > 0 and value[0] == "drawing_method"
+    return (
+        isinstance(value, (list, tuple))
+        and len(value) > 0
+        and str(value[0]) == "drawing_method"
+    )
 
 
 def _handle_drawing_method(
@@ -148,7 +138,7 @@ def _handle_drawing_method(
 ) -> None:
     if len(value) < MIN_SPLIT_LENGTH:
         return
-    method_name = value[1]
+    method_name = str(value[1])
     args = value[2:]
 
     _validate_method_name(method_name, ALLOWED_DRAWING_METHODS)
@@ -157,7 +147,7 @@ def _handle_drawing_method(
     )
 
     if hasattr(drawing, method_name):
-        method = getattr(drawing, method_name)
+        method = _safe_getattr(drawing, method_name)
         method(*positional, **keyword)
     else:
         raise AttributeError(f"Drawing object has no attribute '{method_name}'")
@@ -175,7 +165,7 @@ def _resolve_reference(value: str, components: Dict[str, Any]) -> Any:
     for part in parts[1:]:
         if not hasattr(obj, part):
             raise AttributeError(f"Object has no attribute '{part}'")
-        obj = getattr(obj, part)
+        obj = _safe_getattr(obj, part)
 
     return obj
 
@@ -260,7 +250,6 @@ def _execute_chain(
     if len(component_def) == 0:
         return None
 
-    # 1. Parsing the Root Object
     item = component_def[0]
     args = []
 
@@ -279,12 +268,12 @@ def _execute_chain(
     obj = _resolve_allowlisted_component(name)
     start_index = 1
 
-    # Instantiate if it is a Class/Callable
+    # Case 1: Callable/Class (e.g. elements.Resistor if imported as class)
     if callable(obj):
         positional, keyword = _build_args_kwargs(args, name, components, drawing, depth)
         obj = obj(*positional, **keyword)
 
-    # 2. Handling split format: ['elements', 'Resistor']
+    # Case 2: Module + Class (e.g. ['elements', 'Resistor'])
     elif len(component_def) > 1:
         if isinstance(obj, types.ModuleType):
             start_index = 2
@@ -306,20 +295,18 @@ def _execute_chain(
                 raise SecurityError(f"Private class '{class_name}' forbidden.")
 
             if hasattr(obj, class_name):
-                obj_class = getattr(obj, class_name)
-                # Verify the resolved attribute is actually callable (a class)
+                obj_class = _safe_getattr(obj, class_name)
                 if callable(obj_class):
                     positional, keyword = _build_args_kwargs(
                         class_args, class_name, components, drawing, depth
                     )
                     obj = obj_class(*positional, **keyword)
                 else:
-                    # It might be a constant or pre-instantiated object in the module
                     obj = obj_class
             else:
                 raise AttributeError(f"Module {name} has no attribute {class_name}")
 
-    # 3. Process Method Chain
+    # Case 3: Method Chaining
     for item in component_def[start_index:]:
         if isinstance(item, dict):
             method_name = list(item.keys())[0]
@@ -333,13 +320,13 @@ def _execute_chain(
             method_name = item
             args = []
 
-        _validate_method_name(method_name, ALLOWED_METHODS)
+        _validate_method_name(method_name, ALLOWED_ELEMENT_METHODS)
         positional, keyword = _build_args_kwargs(
             args, method_name, components, drawing, depth
         )
 
         if hasattr(obj, method_name):
-            method = getattr(obj, method_name)
+            method = _safe_getattr(obj, method_name)
             result = method(*positional, **keyword)
             if result is not None:
                 obj = result
