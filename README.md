@@ -89,8 +89,8 @@ This module proposes an alternative, declarative way to represent Schemdraw diag
 
 The module parses the dictionary and resolves the function calls against the schemdraw library.
 
-Internally, it uses `getattr()` to resolve function calls, with an attribute whitelist to prevent module escalation.
+Internally, it uses `getattr()` to resolve function calls, with an attribute allowlist to prevent module escalation.
 
-It can easily and safely parse most of the [schemdraw circuit gallery](https://schemdraw.readthedocs.io/en/stable/gallery/index.html), which was used to generate the included whitelist.
+It can easily and safely parse most of the [schemdraw circuit gallery](https://schemdraw.readthedocs.io/en/stable/gallery/index.html).
 
 If you encounter any valid diagrams that cannot be parsed (or easily adapted into something that this module can parse), please open an issue.

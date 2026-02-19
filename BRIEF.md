@@ -20,11 +20,11 @@ The following YAML spec:
 
 '''yaml
 V1:
-  - elements
-  - SourceV
+  - elements.SourceV
   - label: ["5V"]
 
 line1:
+  - elements.Line
 ... (truncated) [Read more](file:///D:/_DISK_/_Documentos_/Mis_repositorios/yaml-to-schemdraw/README.md)
 ```
 
@@ -39,6 +39,7 @@ schemdraw
 
 ```text
 yaml-to-schemdraw/
+├── scripts
 ├── yaml_to_schemdraw
     ├── __init__.py
     ├── __main__.py

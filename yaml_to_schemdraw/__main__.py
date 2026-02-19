@@ -71,7 +71,11 @@ def from_yaml_string(yaml_string: str) -> schemdraw.Drawing:
 
 
 def _safe_getattr(obj: Any, name: str) -> Any:
-    """Safely gets an attribute from an object, checking against a whitelist.
+    """Safely gets an attribute from an object, checking against an allowlist.
+
+    Checks the static allowlist first. If the name is not found, falls back
+    to checking whether the object exposes it as a dynamic anchor (e.g.,
+    user-defined Ic pin names or element position attributes).
 
     Args:
         obj: The object to get the attribute from.
@@ -81,9 +85,12 @@ def _safe_getattr(obj: Any, name: str) -> Any:
         The attribute value.
 
     Raises:
-        ValueError: If the attribute name is not in the allowlist.
+        ValueError: If the attribute name is not in the allowlist and is not
+            a recognized dynamic anchor on the object.
     """
     if name not in ALLOWED_ATTRS:
+        if name in getattr(obj, "absanchors", {}):
+            return getattr(obj, name)
         raise ValueError(f"Attribute '{name}' not allowed")
     return getattr(obj, name)
 
